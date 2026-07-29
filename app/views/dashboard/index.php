@@ -133,19 +133,27 @@
 <div class="charts-grid">
     <div class="chart-card">
         <div class="chart-card__title">Distribución de Citas por Estado</div>
-        <canvas id="chartCitas"></canvas>
+        <div style="position: relative; width: 100%; height: 280px;">
+            <canvas id="chartCitas"></canvas>
+        </div>
     </div>
     <div class="chart-card">
         <div class="chart-card__title">Consultas Atendidas por Mes</div>
-        <canvas id="chartConsultas"></canvas>
+        <div style="position: relative; width: 100%; height: 280px;">
+            <canvas id="chartConsultas"></canvas>
+        </div>
     </div>
     <div class="chart-card">
         <div class="chart-card__title">Tendencia de Ingresos</div>
-        <canvas id="chartIngresos"></canvas>
+        <div style="position: relative; width: 100%; height: 280px;">
+            <canvas id="chartIngresos"></canvas>
+        </div>
     </div>
     <div class="chart-card">
         <div class="chart-card__title">Volumen de Citas por Mes</div>
-        <canvas id="chartTendencia"></canvas>
+        <div style="position: relative; width: 100%; height: 280px;">
+            <canvas id="chartTendencia"></canvas>
+        </div>
     </div>
 </div>
 
