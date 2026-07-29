@@ -46,14 +46,14 @@ if ($baseUrl === '/') $baseUrl = '';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // Cargar configuración inyectada por PHP desde el .env usando $_SERVER que es más seguro en XAMPP
+        // Cargar configuración inyectada por PHP desde el .env
         const firebaseConfig = {
-            apiKey: "<?php echo $_SERVER['FIREBASE_API_KEY'] ?? ''; ?>",
-            authDomain: "<?php echo $_SERVER['FIREBASE_AUTH_DOMAIN'] ?? ''; ?>",
-            projectId: "<?php echo $_SERVER['FIREBASE_PROJECT_ID'] ?? ''; ?>",
-            storageBucket: "<?php echo $_SERVER['FIREBASE_STORAGE_BUCKET'] ?? ''; ?>",
-            messagingSenderId: "<?php echo $_SERVER['FIREBASE_MESSAGING_SENDER_ID'] ?? ''; ?>",
-            appId: "<?php echo $_SERVER['FIREBASE_APP_ID'] ?? ''; ?>"
+            apiKey: "<?php echo $_ENV['FIREBASE_API_KEY'] ?? $_SERVER['FIREBASE_API_KEY'] ?? getenv('FIREBASE_API_KEY') ?? ''; ?>",
+            authDomain: "<?php echo $_ENV['FIREBASE_AUTH_DOMAIN'] ?? $_SERVER['FIREBASE_AUTH_DOMAIN'] ?? getenv('FIREBASE_AUTH_DOMAIN') ?? ''; ?>",
+            projectId: "<?php echo $_ENV['FIREBASE_PROJECT_ID'] ?? $_SERVER['FIREBASE_PROJECT_ID'] ?? getenv('FIREBASE_PROJECT_ID') ?? ''; ?>",
+            storageBucket: "<?php echo $_ENV['FIREBASE_STORAGE_BUCKET'] ?? $_SERVER['FIREBASE_STORAGE_BUCKET'] ?? getenv('FIREBASE_STORAGE_BUCKET') ?? ''; ?>",
+            messagingSenderId: "<?php echo $_ENV['FIREBASE_MESSAGING_SENDER_ID'] ?? $_SERVER['FIREBASE_MESSAGING_SENDER_ID'] ?? getenv('FIREBASE_MESSAGING_SENDER_ID') ?? ''; ?>",
+            appId: "<?php echo $_ENV['FIREBASE_APP_ID'] ?? $_SERVER['FIREBASE_APP_ID'] ?? getenv('FIREBASE_APP_ID') ?? ''; ?>"
         };
 
         let app, auth;
@@ -69,6 +69,8 @@ if ($baseUrl === '/') $baseUrl = '';
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.querySelector('button[type="submit"]');
+            const err = document.getElementById('errorMsg');
+            err.style.display = 'none';
             
             btn.disabled = true;
             btn.innerText = 'Autenticando...';
@@ -94,15 +96,29 @@ if ($baseUrl === '/') $baseUrl = '';
                 if (data.success) {
                     window.location.href = '<?php echo $baseUrl; ?>' + data.redirect;
                 } else {
-                    const err = document.getElementById('errorMsg');
                     err.style.display = 'block';
                     err.innerText = data.error || 'Error de servidor backend';
                 }
             } catch (error) {
-                console.error(error);
-                const err = document.getElementById('errorMsg');
+                console.error("Error al autenticar con Firebase:", error);
                 err.style.display = 'block';
-                err.innerText = 'Credenciales inválidas en Firebase o servidor caído.';
+                
+                let message = 'Error de autenticación en Firebase.';
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    message = 'Usuario o contraseña incorrectos en Firebase. Asegúrate de registrar el usuario en la Consola de Firebase.';
+                } else if (error.code === 'auth/wrong-password') {
+                    message = 'Contraseña incorrecta.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'El formato del correo electrónico no es válido.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Demasiados intentos fallidos. Intenta más tarde.';
+                } else if (error.message && error.message.includes('API key')) {
+                    message = 'La API Key de Firebase en tu archivo .env no es válida.';
+                } else if (error.message) {
+                    message = `Error de Firebase (${error.code || 'desconocido'}): ${error.message}`;
+                }
+                
+                err.innerText = message;
             } finally {
                 btn.disabled = false;
                 btn.innerText = 'Ingresar';
