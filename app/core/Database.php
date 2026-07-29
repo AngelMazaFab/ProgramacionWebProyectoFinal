@@ -22,9 +22,13 @@ class Database {
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // No exponer errores directos a la salida en producción
             error_log("Error de conexión a base de datos: " . $e->getMessage());
-            die("Error interno de servidor. No se pudo conectar a la base de datos.");
+            if (!headers_sent()) {
+                header('Content-Type: application/json');
+                http_response_code(500);
+            }
+            echo json_encode(['success' => false, 'error' => 'Error de conexión a la base de datos local (MySQL).']);
+            exit;
         }
     }
 

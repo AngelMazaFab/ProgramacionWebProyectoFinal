@@ -42,14 +42,21 @@ class AuthController {
         $usuario = $usuarioModel->findByFirebaseUid($firebaseUid);
 
         if (!$usuario) {
-            // Se registra en MySQL automáticamente con rol paciente (CU-01 Flujo alternativo)
-            $id = $usuarioModel->create([
-                'nombre' => $nombre,
-                'correo' => $correo,
-                'rol' => 'paciente',
-                'firebase_uid' => $firebaseUid
-            ]);
-            $usuario = $usuarioModel->findByFirebaseUid($firebaseUid);
+            // Buscar por correo por si ya existía en la BD antes de sincronizar Firebase UID
+            $usuario = $usuarioModel->findByEmail($correo);
+            if ($usuario) {
+                $usuarioModel->updateFirebaseUid($usuario['id_usuario'], $firebaseUid);
+                $usuario['firebase_uid'] = $firebaseUid;
+            } else {
+                // Se registra en MySQL automáticamente con rol paciente (CU-01 Flujo alternativo)
+                $usuarioModel->create([
+                    'nombre' => $nombre,
+                    'correo' => $correo,
+                    'rol' => 'paciente',
+                    'firebase_uid' => $firebaseUid
+                ]);
+                $usuario = $usuarioModel->findByFirebaseUid($firebaseUid);
+            }
         }
 
         // Establecer sesión

@@ -37,7 +37,20 @@ class Router {
             if (class_exists($controllerClass)) {
                 $controller = new $controllerClass();
                 if (method_exists($controller, $methodName)) {
-                    return $controller->$methodName();
+                    try {
+                        return $controller->$methodName();
+                    } catch (\Throwable $e) {
+                        error_log("Error en ruta $url: " . $e->getMessage());
+                        if (strpos($url, '/api/') === 0) {
+                            if (!headers_sent()) {
+                                header('Content-Type: application/json');
+                                http_response_code(500);
+                            }
+                            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+                            return;
+                        }
+                        throw $e;
+                    }
                 }
             }
             http_response_code(500);

@@ -19,6 +19,20 @@ class Usuario {
         return $stmt->fetch();
     }
 
+    public function findByEmail(string $correo) {
+        $sql = "SELECT * FROM Usuarios WHERE correo = :correo LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':correo', $correo, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    public function updateFirebaseUid(int $id_usuario, string $uid) {
+        $sql = "UPDATE Usuarios SET firebase_uid = :uid WHERE id_usuario = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':uid' => $uid, ':id' => $id_usuario]);
+    }
+
     public function create(array $data): int {
         $sql = "INSERT INTO Usuarios (nombre, correo, telefono, rol, firebase_uid) 
                 VALUES (:nombre, :correo, :telefono, :rol, :firebase_uid)";
