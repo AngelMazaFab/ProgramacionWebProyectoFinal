@@ -12,6 +12,7 @@
                     <th>Correo</th>
                     <th>Teléfono</th>
                     <th>Fecha de Registro</th>
+                    <th style="text-align:center;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -21,6 +22,12 @@
                         <td><?php echo htmlspecialchars($p['correo']); ?></td>
                         <td><?php echo htmlspecialchars($p['telefono'] ?? 'N/D'); ?></td>
                         <td><?php echo date('d/m/Y', strtotime($p['fecha_registro'])); ?></td>
+                        <td style="text-align:center;">
+                            <?php $bU = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); if ($bU === '/') $bU = ''; ?>
+                            <a href="<?php echo $bU; ?>/pacientes/historial?id=<?php echo $p['id_usuario']; ?>" class="btn btn--primary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 8px;">
+                                📘 Historial
+                            </a>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

@@ -60,6 +60,7 @@ $router->post('/citas/store', 'CitaController@store');
 $router->post('/citas/update', 'CitaController@update');
 $router->post('/citas/cancelar', 'CitaController@cancel');
 $router->get('/pacientes', 'CitaController@pacientes');
+$router->get('/pacientes/historial', 'CitaController@historial');
 
 // Rutas para Consultas y Recetas (Módulo 3)
 $router->get('/consultas/atender', 'ConsultaController@atender');
@@ -87,6 +88,9 @@ $router->get('/receta/pdf', 'DashboardController@receta');
 // Rutas de Administrador
 $router->get('/admin/usuarios/nuevo', 'AdminController@createUsuario');
 $router->post('/api/admin/usuarios', 'AdminController@storeUsuario');
+
+// Rutas de Cobros (Módulo Financiero)
+$router->post('/cobros/store', 'ConsultaController@storeCobro');
 
 // Despachar la petición
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
