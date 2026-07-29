@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS Usuarios (
     nombre VARCHAR(120) NOT NULL,
     correo VARCHAR(150) NOT NULL UNIQUE,
     telefono VARCHAR(20) NULL,
-    rol ENUM('paciente', 'medico') NOT NULL DEFAULT 'paciente',
+    rol ENUM('paciente', 'medico', 'admin') NOT NULL DEFAULT 'paciente',
     firebase_uid VARCHAR(128) NOT NULL UNIQUE,
     fecha_registro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
