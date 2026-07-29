@@ -74,4 +74,18 @@ class Cita {
             ':id_cita'    => $id_cita
         ]);
     }
+
+    public function getHistorialByPaciente(int $id_paciente, int $id_medico) {
+        $sql = "SELECT c.id_cita, c.fecha_hora, c.motivo, c.estado, 
+                       con.diagnostico, con.tratamiento, con.fecha_atencion 
+                FROM Citas c
+                LEFT JOIN Consultas con ON c.id_cita = con.id_cita
+                WHERE c.id_paciente = :id_paciente AND c.id_medico = :id_medico
+                ORDER BY c.fecha_hora DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id_paciente', $id_paciente, PDO::PARAM_INT);
+        $stmt->bindValue(':id_medico', $id_medico, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

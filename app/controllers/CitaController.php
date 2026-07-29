@@ -30,8 +30,30 @@ class CitaController {
     public function pacientes() {
         AuthMiddleware::requireRol('medico');
         $usuarioModel = new Usuario();
-        $pacientes = $usuarioModel->getAllPacientes();
+        $id_medico = Session::get('usuario_id');
+        $pacientes = $usuarioModel->getPacientesByMedico($id_medico);
         require_once __DIR__ . '/../views/citas/pacientes.php';
+    }
+
+    public function historial() {
+        AuthMiddleware::requireRol('medico');
+        if (!isset($_GET['id'])) {
+            die("ID de paciente no proporcionado.");
+        }
+        $id_paciente = (int) $_GET['id'];
+        $id_medico = Session::get('usuario_id');
+
+        $usuarioModel = new Usuario();
+        $paciente = $usuarioModel->getById($id_paciente);
+        
+        if (!$paciente) {
+            die("Paciente no encontrado.");
+        }
+        
+        $citaModel = new Cita();
+        $historial = $citaModel->getHistorialByPaciente($id_paciente, $id_medico);
+        
+        require_once __DIR__ . '/../views/citas/historial.php';
     }
 
     public function create() {

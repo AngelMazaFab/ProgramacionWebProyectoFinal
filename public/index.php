@@ -60,6 +60,7 @@ $router->post('/citas/store', 'CitaController@store');
 $router->post('/citas/update', 'CitaController@update');
 $router->post('/citas/cancelar', 'CitaController@cancel');
 $router->get('/pacientes', 'CitaController@pacientes');
+$router->get('/pacientes/historial', 'CitaController@historial');
 
 // Rutas para Consultas y Recetas (Módulo 3)
 $router->get('/consultas/atender', 'ConsultaController@atender');

@@ -52,4 +52,16 @@ class Usuario {
         $stmt->execute();
         return $stmt->fetch();
     }
+
+    public function getPacientesByMedico(int $id_medico) {
+        $sql = "SELECT DISTINCT u.id_usuario, u.nombre, u.correo, u.telefono, u.fecha_registro 
+                FROM Usuarios u
+                JOIN Citas c ON u.id_usuario = c.id_paciente
+                WHERE u.rol = 'paciente' AND c.id_medico = :id_medico
+                ORDER BY u.nombre ASC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id_medico', $id_medico, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
