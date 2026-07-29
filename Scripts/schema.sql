@@ -60,3 +60,14 @@ CREATE TABLE IF NOT EXISTS Entregables_Estudios (
     CONSTRAINT fk_estudios_paciente FOREIGN KEY (id_paciente) REFERENCES Usuarios(id_usuario) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_estudios_cita FOREIGN KEY (id_cita) REFERENCES Citas(id_cita) ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- 6. Cobros (Registro financiero por consulta)
+CREATE TABLE IF NOT EXISTS Cobros (
+    id_cobro INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_consulta INT UNSIGNED NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    metodo_pago ENUM('efectivo', 'tarjeta', 'transferencia') NOT NULL DEFAULT 'efectivo',
+    notas VARCHAR(255) NULL,
+    fecha_cobro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_cobros_consulta FOREIGN KEY (id_consulta) REFERENCES Consultas(id_consulta) ON DELETE RESTRICT ON UPDATE CASCADE
+);

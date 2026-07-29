@@ -88,5 +88,8 @@ $router->get('/receta/pdf', 'DashboardController@receta');
 $router->get('/admin/usuarios/nuevo', 'AdminController@createUsuario');
 $router->post('/api/admin/usuarios', 'AdminController@storeUsuario');
 
+// Rutas de Cobros (Módulo Financiero)
+$router->post('/cobros/store', 'ConsultaController@storeCobro');
+
 // Despachar la petición
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

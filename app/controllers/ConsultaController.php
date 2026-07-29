@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Models\Cita;
 use App\Models\Consulta;
 use App\Models\Receta;
+use App\Models\Cobro;
 use App\Middleware\AuthMiddleware;
 
 class ConsultaController {
@@ -25,6 +26,7 @@ class ConsultaController {
 
         $recetas = [];
         $estudios = [];
+        $cobro = null;
         if ($consulta) {
             $recetaModel = new Receta();
             $recetas = $recetaModel->getByConsulta($consulta['id_consulta']);
@@ -32,10 +34,15 @@ class ConsultaController {
             // Requerimiento RF09: Visualizar archivos y estudios adjuntos vinculados a una cita
             $estudioModel = new \App\Models\Estudio();
             $estudios = $estudioModel->getByCita($id_cita);
+
+            // Cargar datos de cobro si existen
+            $cobroModel = new Cobro();
+            $cobro = $cobroModel->getByConsulta($consulta['id_consulta']);
         }
 
         require_once __DIR__ . '/../views/consultas/atender.php';
     }
+
     public function guardarCanvas() {
         AuthMiddleware::requireRol('medico');
         
@@ -104,5 +111,27 @@ class ConsultaController {
         }
 
         $bU = str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"])); if($bU === "/") $bU = ""; header('Location: ' . $bU . '/consultas/atender?id_cita=' . $id_cita . '&msg=Consulta guardada');
+    }
+
+    public function storeCobro() {
+        AuthMiddleware::requireRol('medico');
+
+        $id_consulta = (int) $_POST['id_consulta'];
+        $id_cita = (int) $_POST['id_cita'];
+
+        // Verificar que no exista ya un cobro para esta consulta
+        $cobroModel = new Cobro();
+        $existente = $cobroModel->getByConsulta($id_consulta);
+        
+        if (!$existente) {
+            $cobroModel->crear([
+                'id_consulta' => $id_consulta,
+                'monto' => (float) $_POST['monto'],
+                'metodo_pago' => $_POST['metodo_pago'] ?? 'efectivo',
+                'notas' => htmlspecialchars($_POST['notas'] ?? '')
+            ]);
+        }
+
+        $bU = str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"])); if($bU === "/") $bU = ""; header('Location: ' . $bU . '/consultas/atender?id_cita=' . $id_cita . '&msg=Cobro registrado exitosamente');
     }
 }
