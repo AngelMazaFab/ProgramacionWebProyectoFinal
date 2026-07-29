@@ -35,15 +35,33 @@ class DashboardController {
         $stmtCitas->execute([':id' => $id_medico]);
         $citasEstado = $stmtCitas->fetchAll();
         
+        // Generar los últimos 6 meses para rellenar vacíos
+        $ultimos6Meses = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $ultimos6Meses[date('Y-m', strtotime("-$i months"))] = 0;
+        }
+        
         // Consultas por mes (últimos 6 meses)
         $sqlConsultas = "SELECT DATE_FORMAT(con.fecha_atencion, '%Y-%m') as mes, COUNT(*) as total 
                          FROM Consultas con
                          JOIN Citas ci ON con.id_cita = ci.id_cita
                          WHERE ci.id_medico = :id
-                         GROUP BY mes ORDER BY mes DESC LIMIT 6";
+                         AND con.fecha_atencion >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+                         GROUP BY mes";
         $stmtConsultas = $db->prepare($sqlConsultas);
         $stmtConsultas->execute([':id' => $id_medico]);
-        $consultasMes = array_reverse($stmtConsultas->fetchAll());
+        $consultasData = $stmtConsultas->fetchAll(PDO::FETCH_ASSOC);
+        
+        $consultasMesAssoc = $ultimos6Meses;
+        foreach ($consultasData as $row) {
+            if (isset($consultasMesAssoc[$row['mes']])) {
+                $consultasMesAssoc[$row['mes']] = (int)$row['total'];
+            }
+        }
+        $consultasMes = [];
+        foreach ($consultasMesAssoc as $m => $t) {
+            $consultasMes[] = ['mes' => $m, 'total' => $t];
+        }
         
         // Total de pacientes únicos del doctor
         $sqlPacientes = "SELECT COUNT(DISTINCT id_paciente) as total FROM Citas WHERE id_medico = :id";
@@ -95,17 +113,40 @@ class DashboardController {
         // Tendencia de citas creadas por mes
         $sqlTendencia = "SELECT DATE_FORMAT(fecha_hora, '%Y-%m') as mes, COUNT(*) as total
                          FROM Citas WHERE id_medico = :id
-                         GROUP BY mes ORDER BY mes DESC LIMIT 6";
+                         AND fecha_hora >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+                         GROUP BY mes";
         $stmtTend = $db->prepare($sqlTendencia);
         $stmtTend->execute([':id' => $id_medico]);
-        $tendenciaCitas = array_reverse($stmtTend->fetchAll());
+        $tendenciaData = $stmtTend->fetchAll(PDO::FETCH_ASSOC);
+        
+        $tendenciaMesAssoc = $ultimos6Meses;
+        foreach ($tendenciaData as $row) {
+            if (isset($tendenciaMesAssoc[$row['mes']])) {
+                $tendenciaMesAssoc[$row['mes']] = (int)$row['total'];
+            }
+        }
+        $tendenciaCitas = [];
+        foreach ($tendenciaMesAssoc as $m => $t) {
+            $tendenciaCitas[] = ['mes' => $m, 'total' => $t];
+        }
         
         // --- MÉTRICAS FINANCIERAS ---
         
         $cobroModel = new Cobro();
         $ingresosMes = $cobroModel->getIngresosMes($id_medico, $mes_actual);
         $ticketPromedio = $cobroModel->getTicketPromedio($id_medico, $mes_actual);
-        $ingresosPorMes = $cobroModel->getIngresosPorMes($id_medico);
+        $ingresosDataRaw = $cobroModel->getIngresosPorMes($id_medico, 6);
+        
+        $ingresosMesAssoc = $ultimos6Meses;
+        foreach ($ingresosDataRaw as $row) {
+            if (isset($ingresosMesAssoc[$row['mes']])) {
+                $ingresosMesAssoc[$row['mes']] = (float)$row['total'];
+            }
+        }
+        $ingresosPorMes = [];
+        foreach ($ingresosMesAssoc as $m => $t) {
+            $ingresosPorMes[] = ['mes' => $m, 'total' => $t];
+        }
         
         // Tasas
         $tasaCancelacion = $citasMes > 0 ? round(($canceladasMes / $citasMes) * 100, 1) : 0;
