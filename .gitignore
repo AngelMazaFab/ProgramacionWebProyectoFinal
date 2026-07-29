@@ -1,0 +1,30 @@
+# Dependency directories
+vendor/
+node_modules/
+
+# Environment variables
+.env
+
+# Storage directories
+storage/uploads/*
+!storage/uploads/.gitkeep
+storage/canvas/*
+!storage/canvas/.gitkeep
+storage/pdf/*
+!storage/pdf/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+
+# Provisioning Scripts output (if any generate sensible data)
+Scripts/.env
+Scripts/test_output.log
+Scripts/check_db.log
+
+# IDEs
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
