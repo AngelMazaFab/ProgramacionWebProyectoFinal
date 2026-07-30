@@ -23,6 +23,8 @@ class Database
 
         // TiDB Serverless requires SSL
         if ($host !== '127.0.0.1' && $host !== 'localhost') {
+            // Indicar el certificado raíz para que PDO inicie la conexión segura
+            $options[PDO::MYSQL_ATTR_SSL_CA] = '/etc/ssl/certs/ca-certificates.crt';
             $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
