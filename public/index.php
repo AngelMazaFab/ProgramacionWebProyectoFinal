@@ -91,6 +91,7 @@ $router->post('/api/admin/usuarios', 'AdminController@storeUsuario');
 
 // Rutas de Cobros (Módulo Financiero)
 $router->post('/cobros/store', 'ConsultaController@storeCobro');
+$router->post('/api/amortizacion/toggle', 'ConsultaController@toggleAmortizacion');
 
 // Despachar la petición
 $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);

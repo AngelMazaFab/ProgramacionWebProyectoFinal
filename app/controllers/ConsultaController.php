@@ -5,6 +5,7 @@ use App\Models\Cita;
 use App\Models\Consulta;
 use App\Models\Receta;
 use App\Models\Cobro;
+use App\Models\PlanPago;
 use App\Middleware\AuthMiddleware;
 
 class ConsultaController {
@@ -38,6 +39,12 @@ class ConsultaController {
             // Cargar datos de cobro si existen
             $cobroModel = new Cobro();
             $cobro = $cobroModel->getByConsulta($consulta['id_consulta']);
+            
+            $planPagoData = null;
+            if ($cobro && $cobro['metodo_pago'] === 'meses') {
+                $planPagoModel = new PlanPago();
+                $planPagoData = $planPagoModel->getPlanYAmortizacionesByCobro($cobro['id_cobro']);
+            }
         }
 
         require_once __DIR__ . '/../views/consultas/atender.php';
@@ -124,14 +131,40 @@ class ConsultaController {
         $existente = $cobroModel->getByConsulta($id_consulta);
         
         if (!$existente) {
-            $cobroModel->crear([
+            $monto = (float) $_POST['monto'];
+            $metodo_pago = $_POST['metodo_pago'] ?? 'efectivo';
+            
+            $id_cobro = $cobroModel->crear([
                 'id_consulta' => $id_consulta,
-                'monto' => (float) $_POST['monto'],
-                'metodo_pago' => $_POST['metodo_pago'] ?? 'efectivo',
+                'monto' => $monto,
+                'metodo_pago' => $metodo_pago,
                 'notas' => htmlspecialchars($_POST['notas'] ?? '')
             ]);
+
+            if ($metodo_pago === 'meses') {
+                $no_pagos = (int) ($_POST['no_pagos'] ?? 1);
+                $frecuencia = $_POST['frecuencia'] ?? 'mensual';
+                
+                if ($no_pagos > 0) {
+                    $planPagoModel = new PlanPago();
+                    $planPagoModel->crearPlan($id_cobro, $monto, $no_pagos, $frecuencia);
+                }
+            }
         }
 
         $bU = str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"])); if($bU === "/") $bU = ""; header('Location: ' . $bU . '/consultas/atender?id_cita=' . $id_cita . '&msg=Cobro registrado exitosamente');
+    }
+
+    public function toggleAmortizacion() {
+        AuthMiddleware::requireRol('medico');
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input || empty($input['id_amortizacion']) || empty($input['estado'])) {
+            http_response_code(400);
+            return;
+        }
+
+        $planPagoModel = new PlanPago();
+        $res = $planPagoModel->toggleEstadoAmortizacion((int)$input['id_amortizacion'], $input['estado']);
+        echo json_encode(['success' => $res]);
     }
 }

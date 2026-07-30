@@ -66,8 +66,30 @@ CREATE TABLE IF NOT EXISTS Cobros (
     id_cobro INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_consulta INT UNSIGNED NOT NULL,
     monto DECIMAL(10,2) NOT NULL,
-    metodo_pago ENUM('efectivo', 'tarjeta', 'transferencia') NOT NULL DEFAULT 'efectivo',
+    metodo_pago ENUM('efectivo', 'tarjeta', 'transferencia', 'meses') NOT NULL DEFAULT 'efectivo',
     notas VARCHAR(255) NULL,
     fecha_cobro DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cobros_consulta FOREIGN KEY (id_consulta) REFERENCES Consultas(id_consulta) ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- 7. Planes de Pago (Cuando método de pago es 'meses')
+CREATE TABLE IF NOT EXISTS Planes_Pago (
+    id_plan INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_cobro INT UNSIGNED NOT NULL,
+    no_pagos INT UNSIGNED NOT NULL,
+    frecuencia ENUM('quincenal', 'mensual') NOT NULL,
+    CONSTRAINT fk_plan_cobro FOREIGN KEY (id_cobro) REFERENCES Cobros(id_cobro) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 8. Amortizaciones (Tabla de pagos parciales)
+CREATE TABLE IF NOT EXISTS Amortizaciones (
+    id_amortizacion INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_plan INT UNSIGNED NOT NULL,
+    numero_pago INT UNSIGNED NOT NULL,
+    deuda_inicial DECIMAL(10,2) NOT NULL,
+    monto_pago DECIMAL(10,2) NOT NULL,
+    adeudo_restante DECIMAL(10,2) NOT NULL,
+    estado ENUM('pendiente', 'pagado') NOT NULL DEFAULT 'pendiente',
+    fecha_modificacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_amortizacion_plan FOREIGN KEY (id_plan) REFERENCES Planes_Pago(id_plan) ON DELETE CASCADE ON UPDATE CASCADE
 );

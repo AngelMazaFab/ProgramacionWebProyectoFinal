@@ -291,13 +291,52 @@
         <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:2px solid var(--border-light);">
             <h3>💰 Cobro de Consulta</h3>
             <?php if (isset($cobro) && $cobro): ?>
-                <div class="cobro-badge" style="margin-bottom:0.75rem;">✅ Pagado</div>
+                <div class="cobro-badge" style="margin-bottom:0.75rem;">✅ <?php echo $cobro['metodo_pago'] === 'meses' ? 'Plan a Meses' : 'Pagado'; ?></div>
                 <div class="stat-row"><span class="stat-row__label">Monto</span><span class="stat-row__value" style="color:var(--color-success);">$<?php echo number_format($cobro['monto'], 2); ?></span></div>
                 <div class="stat-row"><span class="stat-row__label">Método</span><span class="stat-row__value"><?php echo ucfirst($cobro['metodo_pago']); ?></span></div>
                 <?php if ($cobro['notas']): ?>
                     <div class="stat-row"><span class="stat-row__label">Notas</span><span class="stat-row__value"><?php echo htmlspecialchars($cobro['notas']); ?></span></div>
                 <?php endif; ?>
                 <div class="stat-row"><span class="stat-row__label">Fecha</span><span class="stat-row__value"><?php echo date('d/m/Y H:i', strtotime($cobro['fecha_cobro'])); ?></span></div>
+                
+                <?php if ($cobro['metodo_pago'] === 'meses' && isset($planPagoData)): ?>
+                    <div style="background:#eef2f6; padding:15px; border-radius:var(--radius-sm); margin-top:1rem;">
+                        <p style="margin:0 0 5px 0;"><strong>Frecuencia:</strong> <?php echo ucfirst($planPagoData['frecuencia']); ?></p>
+                        <p style="margin:0 0 5px 0;"><strong>Total a pagar:</strong> $<?php echo number_format($cobro['monto'], 2); ?></p>
+                        <?php
+                            $pagosRealizados = array_filter($planPagoData['amortizaciones'], fn($a) => $a['estado'] === 'pagado');
+                            $montoPagado = array_reduce($pagosRealizados, fn($carry, $a) => $carry + $a['monto_pago'], 0);
+                        ?>
+                        <p style="margin:0;"><strong>Pagos parciales:</strong> $<?php echo number_format($montoPagado, 2); ?></p>
+                    </div>
+                    <h4 style="margin-top:1.5rem; text-align:center; color:var(--color-primary);">Tabla de Amortización</h4>
+                    <div class="table-responsive" style="margin-top:10px;">
+                        <table class="table" style="font-size:0.9rem; text-align:center;">
+                            <thead>
+                                <tr style="background:#f1f5f9;">
+                                    <th>NP</th>
+                                    <th>Deuda</th>
+                                    <th>Pago</th>
+                                    <th>Adeudo</th>
+                                    <th>Pagado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($planPagoData['amortizaciones'] as $amort): ?>
+                                    <tr id="row-amort-<?php echo $amort['id_amortizacion']; ?>" style="<?php echo $amort['estado'] === 'pagado' ? 'background:#f8fafc; color:#94a3b8;' : ''; ?>">
+                                        <td><?php echo $amort['numero_pago']; ?></td>
+                                        <td>$<?php echo number_format($amort['deuda_inicial'], 2); ?></td>
+                                        <td>$<?php echo number_format($amort['monto_pago'], 2); ?></td>
+                                        <td>$<?php echo number_format($amort['adeudo_restante'], 2); ?></td>
+                                        <td>
+                                            <input type="checkbox" class="toggle-amort" data-id="<?php echo $amort['id_amortizacion']; ?>" <?php echo $amort['estado'] === 'pagado' ? 'checked' : ''; ?>>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
             <?php elseif ($isMedico): ?>
                 <form method="POST" action="<?php $bU = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); echo $bU === '/' ? '' : $bU; ?>/cobros/store" style="background:#f8fafc; padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border-light);">
                     <input type="hidden" name="id_consulta" value="<?php echo $consulta['id_consulta']; ?>">
@@ -308,11 +347,26 @@
                     </div>
                     <div class="form__group">
                         <label class="form__label">Método de Pago</label>
-                        <select name="metodo_pago" class="form__input">
+                        <select name="metodo_pago" id="metodo_pago_select" class="form__input">
                             <option value="efectivo">💵 Efectivo</option>
                             <option value="tarjeta">💳 Tarjeta</option>
                             <option value="transferencia">🏦 Transferencia</option>
+                            <option value="meses">🗓️ Pagar a meses</option>
                         </select>
+                    </div>
+
+                    <div id="meses_fields" style="display:none; background:#f1f5f9; padding:10px; border-radius:var(--radius-sm); margin-bottom:1rem; border:1px solid #e2e8f0;">
+                        <div class="form__group">
+                            <label class="form__label">No. de Pagos</label>
+                            <input type="number" name="no_pagos" id="no_pagos" class="form__input" min="1" max="60" placeholder="Ej: 12">
+                        </div>
+                        <div class="form__group" style="margin-bottom:0;">
+                            <label class="form__label">Frecuencia</label>
+                            <select name="frecuencia" class="form__input">
+                                <option value="quincenal">Quincenal</option>
+                                <option value="mensual">Mensual</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form__group">
                         <label class="form__label">Notas (opcional)</label>
@@ -327,6 +381,68 @@
     </div>
 </div>
 <?php endif; ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Mostrar/ocultar formulario de meses
+    const selectMetodo = document.getElementById('metodo_pago_select');
+    const mesesFields = document.getElementById('meses_fields');
+    const inputNoPagos = document.getElementById('no_pagos');
+
+    if (selectMetodo && mesesFields) {
+        selectMetodo.addEventListener('change', (e) => {
+            if (e.target.value === 'meses') {
+                mesesFields.style.display = 'block';
+                inputNoPagos.required = true;
+            } else {
+                mesesFields.style.display = 'none';
+                inputNoPagos.required = false;
+            }
+        });
+    }
+
+    // 2. Toggling estado de amortización
+    const toggles = document.querySelectorAll('.toggle-amort');
+    toggles.forEach(chk => {
+        chk.addEventListener('change', async (e) => {
+            const idAmortizacion = e.target.getAttribute('data-id');
+            const estado = e.target.checked ? 'pagado' : 'pendiente';
+            const row = document.getElementById('row-amort-' + idAmortizacion);
+
+            try {
+                const baseUrl = window.location.pathname.replace(/\/consultas\/atender.*/, '');
+                const res = await fetch(`${baseUrl}/api/amortizacion/toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id_amortizacion: idAmortizacion,
+                        estado: estado
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    if (estado === 'pagado') {
+                        row.style.background = '#f8fafc';
+                        row.style.color = '#94a3b8';
+                    } else {
+                        row.style.background = '';
+                        row.style.color = '';
+                    }
+                    // Opcional: recargar la página para actualizar totales
+                    // window.location.reload(); 
+                } else {
+                    alert('Error al actualizar el estado.');
+                    e.target.checked = !e.target.checked;
+                }
+            } catch (err) {
+                alert('Error de conexión.');
+                e.target.checked = !e.target.checked;
+            }
+        });
+    });
+});
+</script>
 
 <?php 
 $content = ob_get_clean();

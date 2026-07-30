@@ -25,6 +25,10 @@ try {
 
     $sql = file_get_contents(__DIR__ . '/schema.sql');
     $pdo->exec($sql);
+    
+    $pdo->exec("USE `$db`");
+    $pdo->exec("ALTER TABLE Cobros MODIFY COLUMN metodo_pago ENUM('efectivo', 'tarjeta', 'transferencia', 'meses') NOT NULL DEFAULT 'efectivo'");
+    echo "SUCCESS: Base de datos y tablas creadas/actualizadas correctamente.\n";
     echo "SUCCESS: Base de datos y tablas creadas/actualizadas correctamente.\n";
 
     $pdo->exec("USE `$db`");
