@@ -74,8 +74,8 @@
     }
 </style>
 
-<div class="header-row">
-    <h1>📊 Dashboard</h1>
+<div class="header-row" style="flex-wrap:wrap; gap:12px;">
+    <h1 style="margin-bottom:0;">📊 Dashboard</h1>
     <a href="<?php $bU = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); echo $bU === '/' ? '' : $bU; ?>/dashboard/reporte" class="btn btn--success" target="_blank">📄 Descargar Reporte PDF</a>
 </div>
 
@@ -161,14 +161,16 @@
 <div class="bottom-grid">
     <div class="card">
         <h3>📅 Próximas Citas</h3>
-        <table class="proximas-table" id="tablaCitas">
-            <thead>
-                <tr><th>Fecha</th><th>Paciente</th><th>Motivo</th></tr>
-            </thead>
-            <tbody id="proximasBody">
-                <tr><td colspan="3" style="color:var(--text-muted); text-align:center;">Cargando...</td></tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="proximas-table" id="tablaCitas">
+                <thead>
+                    <tr><th>Fecha</th><th>Paciente</th><th>Motivo</th></tr>
+                </thead>
+                <tbody id="proximasBody">
+                    <tr><td colspan="3" style="color:var(--text-muted); text-align:center;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="card">
         <h3>📋 Resumen del Mes</h3>

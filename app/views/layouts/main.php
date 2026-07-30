@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MediControl</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +31,7 @@
             --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
             --shadow-xl: 0 20px 40px -4px rgba(0,0,0,0.1);
             --sidebar-width: 260px;
+            --header-height: 60px;
             --bg-body: #f0f2f5;
             --bg-card: #ffffff;
             --text-primary: #1e293b;
@@ -48,6 +49,63 @@
             min-height: 100vh;
             color: var(--text-primary);
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ===== MOBILE HEADER ===== */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: linear-gradient(90deg, #0f172a, #1e293b);
+            color: white;
+            padding: 0 1rem;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 105;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .mobile-header__brand {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #818cf8, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .mobile-toggle {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mobile-toggle:hover { background: rgba(255,255,255,0.1); }
+
+        /* ===== SIDEBAR OVERLAY ===== */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
         }
 
         /* ===== SIDEBAR ===== */
@@ -64,11 +122,15 @@
             height: 100vh;
             z-index: 100;
             overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar__header {
             padding: 1.5rem 1.5rem 1rem;
             border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .sidebar__brand {
@@ -80,6 +142,18 @@
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
         }
+
+        .sidebar__close {
+            display: none;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+        }
+        .sidebar__close:hover { color: white; background: rgba(255,255,255,0.1); }
 
         .sidebar__user {
             padding: 1rem 1.5rem;
@@ -156,6 +230,7 @@
             margin-left: var(--sidebar-width);
             padding: 2rem 2.5rem;
             min-height: 100vh;
+            width: calc(100% - var(--sidebar-width));
             animation: fadeInContent 0.4s ease-out;
         }
 
@@ -190,6 +265,7 @@
             margin-bottom: 1.25rem;
             border: 1px solid var(--border-light);
             transition: box-shadow 0.25s ease, transform 0.25s ease;
+            width: 100%;
         }
 
         .card:hover {
@@ -209,9 +285,11 @@
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
             transition: all 0.2s ease;
             background: var(--color-primary);
+            white-space: nowrap;
         }
 
         .btn:hover {
@@ -236,8 +314,16 @@
         }
         .btn--ghost:hover { background: #f8fafc; color: var(--text-primary); }
 
-        /* ===== TABLES ===== */
-        table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+        /* ===== RESPONSIVE TABLES ===== */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 0.75rem;
+            border-radius: var(--radius-sm);
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         table th, table td {
             padding: 0.85rem 1rem;
             text-align: left;
@@ -251,6 +337,7 @@
             font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
         table tbody tr { transition: background-color 0.15s ease; }
         table tbody tr:hover { background-color: #f8fafc; }
@@ -266,6 +353,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap;
         }
         .badge--solicitada { background: #fef3c7; color: #92400e; }
         .badge--confirmada { background: #d1fae5; color: #065f46; }
@@ -336,12 +424,13 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 1rem;
         }
         .modal-overlay.active { display: flex; }
         .modal {
             background: white;
             border-radius: var(--radius-lg);
-            padding: 2rem;
+            padding: 1.5rem;
             width: 100%;
             max-width: 440px;
             box-shadow: var(--shadow-xl);
@@ -372,15 +461,68 @@
         .gap-sm { gap: 8px; }
         .gap-md { gap: 16px; }
         .gap-lg { gap: 20px; }
+
+        /* ===== MEDIA QUERIES FOR MOBILE ===== */
+        @media (max-width: 768px) {
+            .mobile-header { display: flex; }
+            .sidebar-overlay { display: none; }
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: var(--shadow-xl);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar__close { display: block; }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+                padding-top: calc(var(--header-height) + 1rem);
+            }
+            h1 {
+                font-size: 1.4rem;
+                margin-bottom: 1rem;
+            }
+            .card {
+                padding: 1.15rem;
+                margin-bottom: 1rem;
+            }
+            .toast {
+                top: calc(var(--header-height) + 0.75rem);
+                right: 0.75rem;
+                left: 0.75rem;
+            }
+            .modal__actions {
+                flex-direction: column;
+            }
+            .modal__actions .btn {
+                width: 100%;
+            }
+        }
     </style>
     <script>
         window.baseUrl = "<?php $bU = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); echo $bU === '/' ? '' : $bU; ?>";
     </script>
 </head>
 <body>
-    <aside class="sidebar">
+    <!-- Mobile Top Header -->
+    <header class="mobile-header">
+        <button class="mobile-toggle" id="sidebarToggle" aria-label="Abrir Menú">☰</button>
+        <div class="mobile-header__brand">MediControl</div>
+        <div style="font-size: 0.8rem; font-weight: 600; color: #818cf8; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px;">
+            <?php echo ucfirst(\App\Core\Session::get('usuario_rol') ?? 'Usuario'); ?>
+        </div>
+    </header>
+
+    <!-- Sidebar Backdrop Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar__header">
             <div class="sidebar__brand">MediControl</div>
+            <button class="sidebar__close" id="sidebarClose" aria-label="Cerrar Menú">✕</button>
         </div>
         <?php 
         $rol = \App\Core\Session::get('usuario_rol'); 
@@ -388,8 +530,8 @@
         if ($baseUrl === '/') $baseUrl = '';
         ?>
         <div class="sidebar__user">
-            <div class="sidebar__user-name"><?php echo htmlspecialchars(\App\Core\Session::get('usuario_nombre')); ?></div>
-            <div class="sidebar__user-role"><?php echo ucfirst($rol); ?></div>
+            <div class="sidebar__user-name"><?php echo htmlspecialchars(\App\Core\Session::get('usuario_nombre') ?? ''); ?></div>
+            <div class="sidebar__user-role"><?php echo ucfirst($rol ?? ''); ?></div>
         </div>
         
         <nav class="sidebar__nav">
@@ -418,7 +560,7 @@
         </nav>
 
         <div class="sidebar__logout">
-            <a href="#" onclick="logout()">
+            <a href="#" onclick="logout(); return false;">
                 <span>🚪</span> Cerrar Sesión
             </a>
         </div>
@@ -438,6 +580,30 @@
         function logout() {
             fetch('<?php echo $baseUrl; ?>/api/logout', {method:'POST'}).then(()=>window.location='<?php echo $baseUrl; ?>/login');
         }
+
+        // Mobile Sidebar Toggle Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            var toggleBtn = document.getElementById('sidebarToggle');
+            var closeBtn = document.getElementById('sidebarClose');
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+        });
     </script>
 </body>
 </html>

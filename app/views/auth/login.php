@@ -11,15 +11,32 @@ if ($baseUrl === '/') $baseUrl = '';
     <!-- CSS BEM Minimalista -->
     <style>
         :root { --color-primary: #1F4E79; --color-accent: #2E75B6; --font-base: 'Inter', sans-serif; --radius-base: 8px; }
-        body { font-family: var(--font-base); background-color: #f4f6f8; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .auth-card { background: #fff; padding: 2rem; border-radius: var(--radius-base); box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        .auth-card__title { color: var(--color-primary); text-align: center; margin-bottom: 1.5rem; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: var(--font-base);
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1.5rem 1rem;
+        }
+        .auth-card {
+            background: #fff;
+            padding: 2rem 1.5rem;
+            border-radius: var(--radius-base);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .auth-card__title { color: var(--color-primary); text-align: center; margin-bottom: 0.5rem; font-size: 1.75rem; }
         .form__group { margin-bottom: 1rem; }
-        .form__label { display: block; margin-bottom: 0.5rem; color: #333; }
-        .form__input { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 0.75rem; border: none; border-radius: var(--radius-base); background-color: var(--color-primary); color: #fff; cursor: pointer; font-size: 1rem; transition: background 0.3s; }
+        .form__label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500; font-size: 0.9rem; }
+        .form__input { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.95rem; }
+        .btn { width: 100%; padding: 0.75rem; border: none; border-radius: var(--radius-base); background-color: var(--color-primary); color: #fff; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background 0.3s; }
         .btn:hover { background-color: var(--color-accent); }
-        .auth-card__error { color: #C62828; font-size: 0.875rem; margin-top: 1rem; display: none; }
+        .auth-card__error { color: #C62828; font-size: 0.875rem; margin-top: 1rem; display: none; word-break: break-word; }
     </style>
 </head>
 <body>

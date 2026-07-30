@@ -88,6 +88,13 @@
     }
     .atender-grid { display: flex; gap: 20px; flex-wrap: wrap; }
     .atender-grid > .card { flex: 1; min-width: 300px; }
+
+    @media (max-width: 768px) {
+        .atender-grid > .card { min-width: 100%; }
+        .canvas-toolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .canvas-toolbar__divider { display: none; }
+        .canvas-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    }
 </style>
 
 <h1>🩺 Atención Médica - Cita #<?php echo $cita['id_cita']; ?></h1>
@@ -148,34 +155,36 @@
         <?php if (empty($recetas)): ?>
             <p style="color:var(--text-muted);">No hay medicamentos recetados todavía.</p>
         <?php else: ?>
-            <table style="font-size: 0.85rem;">
-                <thead>
-                    <tr>
-                        <th>Medicamento</th>
-                        <th>Dosis</th>
-                        <th>Indicaciones</th>
-                        <?php if($isMedico): ?><th></th><?php endif; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($recetas as $r): ?>
+            <div class="table-responsive">
+                <table style="font-size: 0.85rem;">
+                    <thead>
                         <tr>
-                            <td><?php echo htmlspecialchars($r['medicamento']); ?></td>
-                            <td><?php echo htmlspecialchars($r['dosis']); ?></td>
-                            <td><?php echo htmlspecialchars($r['indicaciones']); ?></td>
-                            <?php if($isMedico): ?>
-                            <td>
-                                <form method="POST" action="<?php $bU = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); echo $bU === '/' ? '' : $bU; ?>/recetas/delete" style="display:inline;">
-                                    <input type="hidden" name="id_receta" value="<?php echo $r['id_receta']; ?>">
-                                    <input type="hidden" name="id_cita" value="<?php echo $cita['id_cita']; ?>">
-                                    <button type="submit" class="btn btn--danger" style="padding: 3px 8px; font-size: 0.75rem;" onclick="return confirm('¿Quitar de la receta?');">✕</button>
-                                </form>
-                            </td>
-                            <?php endif; ?>
+                            <th>Medicamento</th>
+                            <th>Dosis</th>
+                            <th>Indicaciones</th>
+                            <?php if($isMedico): ?><th></th><?php endif; ?>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($recetas as $r): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($r['medicamento']); ?></td>
+                                <td><?php echo htmlspecialchars($r['dosis']); ?></td>
+                                <td><?php echo htmlspecialchars($r['indicaciones']); ?></td>
+                                <?php if($isMedico): ?>
+                                <td>
+                                    <form method="POST" action="<?php $bU = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); echo $bU === '/' ? '' : $bU; ?>/recetas/delete" style="display:inline;">
+                                        <input type="hidden" name="id_receta" value="<?php echo $r['id_receta']; ?>">
+                                        <input type="hidden" name="id_cita" value="<?php echo $cita['id_cita']; ?>">
+                                        <button type="submit" class="btn btn--danger" style="padding: 3px 8px; font-size: 0.75rem;" onclick="return confirm('¿Quitar de la receta?');">✕</button>
+                                    </form>
+                                </td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         <?php endif; ?>
     </div>
     <?php endif; ?>

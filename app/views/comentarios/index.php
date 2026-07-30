@@ -3,33 +3,35 @@
 
 <div class="card">
     <?php if (empty($comentarios)): ?>
-        <p>Aún no hay comentarios registrados en la bitácora física.</p>
+        <p style="color:var(--text-muted); text-align:center; padding:2rem;">Aún no hay comentarios registrados en la bitácora física.</p>
     <?php else: ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>Fecha</th>
-                    <th>Paciente</th>
-                    <th>Calificación</th>
-                    <th>Comentario (Archivo Secuencial)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($comentarios as $com): ?>
+        <div class="table-responsive">
+            <table>
+                <thead>
                     <tr>
-                        <td><?php echo htmlspecialchars($com['fecha']); ?></td>
-                        <td><?php echo htmlspecialchars($com['paciente_nombre']); ?></td>
-                        <td>
-                            <?php 
-                                $estrellas = str_repeat('⭐', (int)$com['calificacion']);
-                                echo $estrellas; 
-                            ?>
-                        </td>
-                        <td><?php echo htmlspecialchars($com['comentario']); ?></td>
+                        <th>Fecha</th>
+                        <th>Paciente</th>
+                        <th>Calificación</th>
+                        <th>Comentario</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($comentarios as $com): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($com['fecha']); ?></td>
+                            <td><?php echo htmlspecialchars($com['paciente_nombre']); ?></td>
+                            <td>
+                                <?php 
+                                    $estrellas = str_repeat('⭐', (int)$com['calificacion']);
+                                    echo $estrellas; 
+                                ?>
+                            </td>
+                            <td><?php echo htmlspecialchars($com['comentario']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     <?php endif; ?>
 </div>
 

@@ -10,6 +10,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
     .patient-header__info h1 {
         font-family: var(--font-display);
@@ -80,6 +82,8 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 0.5rem;
         margin-bottom: 1rem;
         padding-bottom: 0.75rem;
         border-bottom: 1px solid var(--border-light);
@@ -120,6 +124,22 @@
         font-size: 3rem;
         margin-bottom: 1rem;
         opacity: 0.5;
+    }
+
+    @media (max-width: 600px) {
+        .patient-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .timeline {
+            padding-left: 1.25rem;
+        }
+        .timeline-item__dot {
+            left: -1.6rem;
+        }
+        .timeline-item__content {
+            padding: 1rem;
+        }
     }
 </style>
 
