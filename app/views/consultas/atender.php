@@ -198,7 +198,20 @@
                     <?php endif; ?>
                     <option value="<?php $bU = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); echo $bU === '/' ? '' : $bU; ?>/assets/img/cuerpo.png">Cuerpo Humano</option>
                     <option value="<?php $bU = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); echo $bU === '/' ? '' : $bU; ?>/assets/img/sistema_oseo.png">Sistema Óseo</option>
+                    <option value="youtube:UScqQmxmAAw">🎬 Video de Anatomía</option>
                 </select>
+            </div>
+
+            <!-- Contenedor de video YouTube (oculto por defecto) -->
+            <div id="youtubeContainer" style="display:none; margin-bottom:10px;">
+                <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:var(--radius-sm); border:1px solid var(--border-light);">
+                    <iframe id="youtubePlayer" 
+                        src="" 
+                        style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
             </div>
 
             <!-- Toolbar -->

@@ -32,10 +32,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (templateSelector) {
+        const youtubeContainer = document.getElementById('youtubeContainer');
+        const youtubePlayer = document.getElementById('youtubePlayer');
+        const canvasWrapper = canvas.parentElement; // .canvas-wrapper
+        const canvasToolbar = document.getElementById('canvasToolbar');
+        const canvasButtons = canvas.parentElement.nextElementSibling?.nextElementSibling; // save/clear buttons div
+        const cursorEl = document.getElementById('canvasCursor');
+
+        function showCanvas() {
+            if (canvasWrapper) canvasWrapper.style.display = '';
+            if (canvasToolbar) canvasToolbar.style.display = '';
+            if (youtubeContainer) youtubeContainer.style.display = 'none';
+            if (youtubePlayer) youtubePlayer.src = '';
+            // Show canvas-related buttons
+            document.querySelectorAll('#btnSaveCanvas, #btnClearCanvas').forEach(btn => {
+                if (btn && btn.parentElement) btn.parentElement.style.display = '';
+            });
+        }
+
+        function showYouTube(videoId) {
+            if (canvasWrapper) canvasWrapper.style.display = 'none';
+            if (canvasToolbar) canvasToolbar.style.display = 'none';
+            if (cursorEl) cursorEl.style.display = 'none';
+            // Hide canvas-related buttons
+            document.querySelectorAll('#btnSaveCanvas, #btnClearCanvas').forEach(btn => {
+                if (btn && btn.parentElement) btn.parentElement.style.display = 'none';
+            });
+            if (youtubeContainer) youtubeContainer.style.display = 'block';
+            if (youtubePlayer) youtubePlayer.src = 'https://www.youtube.com/embed/' + videoId + '?rel=0';
+        }
+
         templateSelector.addEventListener('change', (e) => {
-            loadTemplate(e.target.value);
+            const val = e.target.value;
+            if (val.startsWith('youtube:')) {
+                const videoId = val.replace('youtube:', '');
+                showYouTube(videoId);
+            } else {
+                showCanvas();
+                loadTemplate(val);
+            }
         });
-        loadTemplate(templateSelector.value);
+
+        // Initial load
+        const initialVal = templateSelector.value;
+        if (initialVal.startsWith('youtube:')) {
+            showYouTube(initialVal.replace('youtube:', ''));
+        } else {
+            loadTemplate(initialVal);
+        }
     }
 
     // ===== TOOLBAR SETUP =====
