@@ -71,7 +71,9 @@ if ($baseUrl === '/') $baseUrl = '';
 
         <div class="form__group">
             <label class="form__label">Fecha y Hora</label>
-            <input type="datetime-local" name="fecha_hora" class="form__input" required>
+            <input type="datetime-local" name="fecha_hora" id="fecha-hora" class="form__input" required
+                   min="<?php echo date('Y-m-d\TH:i'); ?>">
+            <small style="color: var(--text-muted); font-size: 0.8rem;">No se pueden agendar citas en fechas pasadas.</small>
         </div>
 
         <div class="form__group">
@@ -86,9 +88,9 @@ if ($baseUrl === '/') $baseUrl = '';
 
 <script>
     (function() {
+        // --- Búsqueda de pacientes ---
         var searchInput = document.getElementById('paciente-search');
         var select = document.getElementById('select-paciente');
-        // Guardar todas las opciones originales (sin la primera vacía)
         var allOptions = Array.from(select.options).slice(1).map(function(opt) {
             return {
                 value: opt.value,
@@ -98,11 +100,9 @@ if ($baseUrl === '/') $baseUrl = '';
 
         searchInput.addEventListener('input', function() {
             var query = this.value.toLowerCase().trim();
-            // Limpiar opciones actuales (excepto la primera)
             while (select.options.length > 1) {
                 select.remove(1);
             }
-            // Re-agregar solo las que coincidan
             allOptions.forEach(function(opt) {
                 if (!query || opt.text.toLowerCase().includes(query)) {
                     var newOpt = document.createElement('option');
@@ -111,6 +111,19 @@ if ($baseUrl === '/') $baseUrl = '';
                     select.appendChild(newOpt);
                 }
             });
+        });
+
+        // --- Validación de fecha: no permitir fechas pasadas ---
+        var form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            var fechaInput = document.getElementById('fecha-hora');
+            var fechaSeleccionada = new Date(fechaInput.value);
+            var ahora = new Date();
+            if (fechaSeleccionada < ahora) {
+                e.preventDefault();
+                alert('No se puede agendar una cita en una fecha y hora que ya pasó.');
+                fechaInput.focus();
+            }
         });
     })();
 </script>

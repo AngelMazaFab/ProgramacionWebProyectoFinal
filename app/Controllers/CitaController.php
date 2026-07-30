@@ -67,11 +67,19 @@ class CitaController {
         AuthMiddleware::requireRol('medico');
         $id_medico = Session::get('usuario_id');
         $id_paciente = (int) $_POST['id_paciente'];
+        $fecha_hora = $_POST['fecha_hora'];
+
+        // Validar que la fecha no sea pasada
+        if (strtotime($fecha_hora) < time()) {
+            $bU = str_replace("\\", "/", dirname($_SERVER["SCRIPT_NAME"])); if($bU === "/") $bU = "";
+            header('Location: ' . $bU . '/citas/create?error=No se pueden agendar citas en fechas pasadas');
+            return;
+        }
 
         $datos = [
             'id_paciente' => $id_paciente,
             'id_medico'   => $id_medico,
-            'fecha_hora'  => $_POST['fecha_hora'],
+            'fecha_hora'  => $fecha_hora,
             'motivo'      => htmlspecialchars($_POST['motivo'] ?? '')
         ];
 
