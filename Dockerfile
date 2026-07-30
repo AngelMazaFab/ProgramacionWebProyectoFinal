@@ -3,18 +3,21 @@ FROM php:8.2-apache
 # Habilitar mod_rewrite de Apache para que funcione el .htaccess
 RUN a2enmod rewrite
 
-# Instalar dependencias del sistema para extensiones PHP (dompdf necesita GD y mbstring)
+# Instalar dependencias del sistema para extensiones PHP
 RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libpng-dev \
     libzip-dev \
+    libonig-dev \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar extensiones necesarias de PHP
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql gd mbstring zip
+# Instalar extensiones de PHP una por una
+RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && docker-php-ext-install gd
+RUN docker-php-ext-install mbstring
+RUN docker-php-ext-install zip
 
 # Instalar Composer (para descargar las dependencias del proyecto)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
