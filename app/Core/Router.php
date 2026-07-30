@@ -13,6 +13,10 @@ class Router {
     }
 
     public function dispatch($uri, $method) {
+        // Los monitores como Uptime Robot usan HEAD. Lo tratamos como GET.
+        if ($method === 'HEAD') {
+            $method = 'GET';
+        }
         $url = parse_url($uri, PHP_URL_PATH);
         
         // Soporte si el proyecto corre desde una subcarpeta en xampp (htdocs)
