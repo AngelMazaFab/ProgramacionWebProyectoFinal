@@ -12,11 +12,11 @@ class Database
 
     private function __construct()
     {
-        $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
-        $port = $_ENV['DB_PORT'] ?? '3306';
-        $db = $_ENV['DB_DATABASE'] ?? 'medicontrol_db';
-        $user = $_ENV['DB_USERNAME'] ?? 'root';
-        $pass = $_ENV['DB_PASSWORD'] ?? '';
+        $host = $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?: '127.0.0.1';
+        $port = $_ENV['DB_PORT'] ?? getenv('DB_PORT') ?: '3306';
+        $db = $_ENV['DB_DATABASE'] ?? getenv('DB_DATABASE') ?: 'medicontrol_db';
+        $user = $_ENV['DB_USERNAME'] ?? getenv('DB_USERNAME') ?: 'root';
+        $pass = $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD') ?: '';
 
         $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
         $options = [];
