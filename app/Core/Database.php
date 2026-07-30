@@ -36,7 +36,8 @@ class Database
                 header('Content-Type: application/json');
                 http_response_code(500);
             }
-            echo json_encode(['success' => false, 'error' => 'Error de conexión a la base de datos local (MySQL).']);
+            // Temporalmente enviamos el error real al frontend para poder depurar
+            echo json_encode(['success' => false, 'error' => 'DB Error: ' . $e->getMessage()]);
             exit;
         }
     }
